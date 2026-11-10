@@ -83,3 +83,160 @@ When processing UI component generation prompts:
 * *"Read DESIGN.md and create a glassmorphic login card using references from uiverse-io/galaxy."*
 
 * *"Fetch a neobrutalist button style from the Uiverse repository and convert it to React + Tailwind."*
+
+
+## 6. UI QUALITY EVALUATION SYSTEM
+
+Every generated UI must undergo a quality evaluation before the task is considered complete.
+
+The purpose of this evaluation is to reduce generic AI-generated design patterns and improve visual consistency, usability, responsiveness, accessibility, and code maintainability.
+
+### A. Evaluation Principles
+
+1. Evaluate the actual implementation, not just the design description.
+2. Compare the generated UI against the user's requirements and the existing project's design system.
+3. Do not assume that a visually attractive component is automatically usable.
+4. Do not introduce unnecessary visual effects, decorations, gradients, or animations.
+5. Preserve the selected design aesthetic throughout the interface.
+6. Identify and fix issues before delivering the final result.
+7. Never claim that a test passed unless it was actually performed.
+
+### B. Quality Evaluation Criteria
+
+Score the implementation using the following weighted criteria:
+
+| Criterion | Weight |
+|---|---:|
+| Visual Consistency & Design Coherence | 25 |
+| Visual Hierarchy & Typography | 20 |
+| Usability & Interaction | 20 |
+| Responsive Design | 15 |
+| Accessibility | 10 |
+| Code Quality & Maintainability | 10 |
+| TOTAL | 100 |
+
+#### 1. Visual Consistency & Design Coherence (25)
+
+Evaluate:
+- Consistency of colors, borders, shadows, and radii.
+- Consistency with the selected design aesthetic.
+- Consistency between related components.
+- Appropriate use of visual effects.
+- Avoidance of unnecessary decorative elements.
+
+#### 2. Visual Hierarchy & Typography (20)
+
+Evaluate:
+- Clear distinction between headings, body text, and secondary information.
+- Appropriate font sizes and font weights.
+- Readable line lengths and line heights.
+- Consistent spacing and alignment.
+- Clear visual emphasis on important elements.
+
+#### 3. Usability & Interaction (20)
+
+Evaluate:
+- Clear navigation and component affordances.
+- Buttons and interactive elements behave as expected.
+- Forms provide appropriate validation and feedback.
+- Hover, active, focus, and disabled states are handled where applicable.
+- No misleading or non-functional interactive elements.
+
+#### 4. Responsive Design (15)
+
+Evaluate:
+- Layout adapts to mobile, tablet, and desktop.
+- No unintended horizontal overflow.
+- Text remains readable at smaller viewport sizes.
+- Components do not overlap or become inaccessible.
+- Navigation and controls remain usable on touch devices.
+
+#### 5. Accessibility (10)
+
+Evaluate:
+- Semantic HTML elements are used appropriately.
+- Interactive elements support keyboard navigation.
+- Focus states are visible.
+- Inputs have accessible labels.
+- Images have appropriate alternative text.
+- Text and background provide sufficient contrast.
+- ARIA attributes are used only when necessary and correctly.
+
+#### 6. Code Quality & Maintainability (10)
+
+Evaluate:
+- Components are structured logically.
+- Avoid unnecessary code duplication.
+- CSS selectors do not create unintended conflicts.
+- Framework conventions are respected.
+- Existing project architecture is preserved.
+- No unnecessary dependencies are introduced.
+
+### C. Evaluation Scoring
+
+Each criterion receives a score proportional to its assigned weight.
+
+Use the following quality thresholds:
+
+- 90–100: Excellent. Ready for final review.
+- 80–89: Good. Minor improvements may be needed.
+- 70–79: Needs improvement. Revise identified weaknesses.
+- Below 70: Poor. Rework the implementation before delivery.
+
+A score of 80 or higher is the target, not an automatic guarantee of production readiness.
+
+### D. Critical Quality Gates
+
+Regardless of the total score, the following issues must be addressed before delivery:
+
+1. Broken or non-functional primary interactions.
+2. Unintended horizontal overflow that prevents normal usage.
+3. Missing accessible names for essential interactive controls.
+4. Unreadable text or severely insufficient contrast.
+5. Major layout breakage at supported viewport sizes.
+6. Implementation errors that prevent the UI from rendering correctly.
+
+A high score must never compensate for a critical functional or accessibility failure.
+
+### E. Evaluation Workflow
+
+After generating the interface:
+
+1. Review the implementation against the original user requirements.
+2. Inspect the component structure, styles, and design consistency.
+3. If browser preview or screenshot tools are available, inspect the rendered result.
+4. Test representative mobile, tablet, and desktop viewport sizes.
+5. Test interactive behavior when a runnable environment is available.
+6. Check accessibility using available inspection tools.
+7. Calculate the weighted quality score.
+8. Identify the lowest-scoring criteria and revise the implementation.
+9. Re-evaluate after making changes.
+10. Report the final score and any remaining unverified aspects.
+
+Do not fabricate browser tests, screenshots, accessibility results, or successful interactions when the required tools are unavailable.
+
+### F. Final Evaluation Report
+
+Include a concise report when completing a UI generation task:
+
+**UI Quality Evaluation**
+
+- Visual Consistency: XX/25
+- Visual Hierarchy: XX/20
+- Usability & Interaction: XX/20
+- Responsive Design: XX/15
+- Accessibility: XX/10
+- Code Quality: XX/10
+
+**Total Score:** XX/100
+
+**Identified Issues:**
+- List actual problems discovered during evaluation.
+
+**Improvements Applied:**
+- List changes made to address those problems.
+
+**Remaining Limitations:**
+- Mention aspects that could not be verified or tested.
+
+The evaluation score represents a structured engineering assessment, not an objective guarantee of visual quality.
