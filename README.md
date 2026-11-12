@@ -36,31 +36,31 @@ maintainable.
   -----------------------------------------------------------------------
   Style                               Design Characteristics
   ----------------------------------- -----------------------------------
-  Neobrutalism                        Bold borders, high contrast, hard
+  ✅Neobrutalism                        Bold borders, high contrast, hard
                                       offset shadows
 
-  Glassmorphism                       Translucent surfaces, backdrop
+  ✅Glassmorphism                       Translucent surfaces, backdrop
                                       blur, subtle borders
 
-  Neumorphism                         Soft shadows and embossed surfaces
+  ✅Neumorphism                         Soft shadows and embossed surfaces
 
-  Claymorphism                        Rounded shapes, soft lighting,
+  ✅Claymorphism                        Rounded shapes, soft lighting,
                                       dimensional appearance
 
-  Retro / 8-bit / 16-bit              Pixel-inspired borders, nostalgic
+  ✅Retro / 8-bit / 16-bit              Pixel-inspired borders, nostalgic
                                       palettes, pixel typography
 
-  Modern Minimalist                   Clean layouts, restrained colors,
+  ✅Modern Minimalist                   Clean layouts, restrained colors,
                                       clear spacing
 
-  Flat 2.0                            Simple surfaces with subtle depth
+  ✅Flat 2.0                            Simple surfaces with subtle depth
                                       and hierarchy
   -----------------------------------------------------------------------
 
 The selected aesthetic should match the project's purpose. Avoid
 combining unrelated styles without a clear design rationale.
 
-### Liquid Glass & Dynamic Material UI
+### ✅Liquid Glass & Dynamic Material UI
 
 Uiverse Agent Config also supports **Liquid Glass & Dynamic Material
 UI** as an integrated design direction. It extends basic glassmorphism
