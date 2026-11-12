@@ -1,0 +1,2232 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#04120d">
+<meta name="description" content="Verdant menyatukan sistem material, token desain, dan performa dalam satu ruang kerja untuk membangun antarmuka yang terasa hidup.">
+<title>Verdant — Antarmuka yang terasa hidup</title>
+<link rel="preload" as="image" href="assets/hero-bg.webp" fetchpriority="high">
+<script>document.documentElement.classList.add('js');</script>
+<style>
+/* ============================================================
+   1. TOKENS — shared material system
+   ============================================================ */
+:root{
+  /* palette */
+  --bg:              #04120d;
+  --bg-soft:         #06190f;
+  --text:            #eefaf4;
+  --text-2:          #b7d2c6;
+  --text-3:          #8ea99d;
+  --emerald:         #2fe08c;
+  --emerald-strong:  #17c878;
+  --mint:            #a8f7cd;
+  --leaf:            #0f7a4d;
+
+  /* material: fills */
+  --surface-1: rgb(255 255 255 / 4%);
+  --surface-2: rgb(255 255 255 / 7%);
+  --surface-3: rgb(255 255 255 / 11%);
+  --surface-glass: rgb(10 30 22 / 46%);
+  --surface-solid: #081c14;
+  --surface-raised: linear-gradient(180deg,#0b241a 0%,#071a12 100%);
+
+  /* material: edges & light */
+  --edge:        rgb(255 255 255 / 10%);
+  --edge-strong: rgb(255 255 255 / 20%);
+  --edge-tint:   rgb(47 224 140 / 34%);
+  --specular: linear-gradient(180deg,rgb(255 255 255 / 13%) 0%,rgb(255 255 255 / 0%) 46%);
+  --glow: radial-gradient(60% 60% at 50% 0%,rgb(47 224 140 / 26%) 0%,transparent 72%);
+
+  /* elevation */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 30%);
+  --shadow-2: 0 12px 32px -12px rgb(0 0 0 / 60%);
+  --shadow-3: 0 32px 80px -28px rgb(0 0 0 / 78%);
+  --shadow-glow: 0 18px 48px -18px rgb(47 224 140 / 38%);
+
+  /* shape */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 30px;
+  --r-pill: 999px;
+
+  /* motion */
+  --ease: cubic-bezier(.22,.68,.24,1);
+  --t-fast: 140ms;
+  --t-mid: 240ms;
+  --t-slow: 420ms;
+
+  /* layout */
+  --shell: 1180px;
+  --gutter: clamp(20px, 4vw, 48px);
+  --nav-h: 68px;
+  --focus: #7cf5c4;
+}
+
+/* ============================================================
+   2. RESET & BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+html{
+  scroll-behavior:smooth;
+  -webkit-text-size-adjust:100%;
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Inter Tight","Inter",-apple-system,BlinkMacSystemFont,"Segoe UI Variable Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+body::before{
+  /* page-level emerald ambience, cheap: single fixed gradient, no blur filter */
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  background:
+    radial-gradient(46% 34% at 82% -6%,rgb(47 224 140 / 12%) 0%,transparent 70%),
+    radial-gradient(38% 30% at 6% 22%,rgb(15 122 77 / 14%) 0%,transparent 72%);
+}
+img{max-width:100%;display:block}
+svg{display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+ul,ol{margin:0;padding:0;list-style:none}
+h1,h2,h3,h4,p{margin:0}
+:focus-visible{
+  outline:2px solid var(--focus);
+  outline-offset:3px;
+  border-radius:6px;
+}
+::selection{background:rgb(47 224 140 / 32%);color:#fff}
+
+.shell{
+  width:100%;
+  max-width:var(--shell);
+  margin-inline:auto;
+  padding-inline:var(--gutter);
+}
+.section{
+  position:relative;
+  z-index:1;
+  padding-block:clamp(64px,9vw,120px);
+  scroll-margin-top:calc(var(--nav-h) + 16px);
+}
+.section--tight{padding-block:clamp(48px,6vw,80px)}
+.section--hairline{border-top:1px solid rgb(255 255 255 / 7%)}
+
+.skip-link{
+  position:fixed;
+  top:10px;left:10px;
+  z-index:200;
+  padding:12px 18px;
+  border-radius:var(--r-sm);
+  background:#0b2c20;
+  border:1px solid var(--edge-strong);
+  color:var(--text);
+  font-weight:600;
+  transform:translateY(-160%);
+  transition:transform var(--t-mid) var(--ease);
+}
+.skip-link:focus-visible{transform:translateY(0)}
+
+/* ============================================================
+   3. SHARED UI PRIMITIVES
+   ============================================================ */
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--mint);
+}
+.eyebrow::before{
+  content:"";
+  width:22px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--emerald));
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  padding:7px 14px 7px 10px;
+  border-radius:var(--r-pill);
+  border:1px solid var(--edge-strong);
+  background:var(--surface-2);
+  color:var(--text-2);
+  font-size:12.5px;
+  font-weight:500;
+  letter-spacing:.01em;
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 10%);
+}
+.pill__dot{
+  width:7px;height:7px;
+  border-radius:50%;
+  background:var(--emerald);
+  box-shadow:0 0 0 3px rgb(47 224 140 / 18%);
+}
+
+.btn{
+  --btn-bg:transparent;
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  min-height:48px;
+  padding:0 22px;
+  border-radius:var(--r-pill);
+  border:1px solid transparent;
+  font-size:14.5px;
+  font-weight:600;
+  letter-spacing:.005em;
+  white-space:nowrap;
+  transition:
+    transform var(--t-fast) var(--ease),
+    background-color var(--t-mid) var(--ease),
+    border-color var(--t-mid) var(--ease),
+    box-shadow var(--t-mid) var(--ease),
+    color var(--t-mid) var(--ease);
+}
+.btn svg{width:17px;height:17px;flex:none}
+.btn:active{transform:translateY(1px) scale(.985)}
+
+.btn--primary{
+  color:#03170e;
+  background:linear-gradient(180deg,#68f2b0 0%,#20d187 55%,#12b975 100%);
+  border-color:rgb(255 255 255 / 44%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 62%),
+    0 10px 24px -12px rgb(47 224 140 / 70%);
+}
+.btn--primary:hover{
+  color:#02120a;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 72%),
+    0 16px 34px -12px rgb(47 224 140 / 82%);
+  transform:translateY(-1px);
+}
+.btn--glass{
+  color:var(--text);
+  background:var(--surface-3);
+  border-color:var(--edge-strong);
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 14%);
+}
+.btn--glass:hover{
+  background:rgb(255 255 255 / 16%);
+  border-color:rgb(255 255 255 / 32%);
+  transform:translateY(-1px);
+}
+.btn--ghost{
+  min-height:40px;
+  padding:0 14px;
+  color:var(--text-2);
+  border-radius:var(--r-sm);
+}
+.btn--ghost:hover{color:var(--text);background:var(--surface-2)}
+.btn--sm{min-height:42px;padding:0 18px;font-size:13.5px}
+.btn--block{width:100%}
+
+/* glass material — used sparingly: nav, hero panel, showcase frame, final CTA */
+.glass{
+  position:relative;
+  background:var(--surface-glass);
+  border:1px solid var(--edge);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-2), inset 0 1px 0 rgb(255 255 255 / 9%);
+  isolation:isolate;
+}
+.glass::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  border-radius:inherit;
+  background:var(--specular);
+  pointer-events:none;
+}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .glass{
+    -webkit-backdrop-filter:blur(20px) saturate(150%);
+    backdrop-filter:blur(20px) saturate(150%);
+    background:rgb(9 28 21 / 40%);
+  }
+}
+
+.card{
+  position:relative;
+  padding:clamp(20px,3vw,30px);
+  border-radius:var(--r-lg);
+  border:1px solid var(--edge);
+  background:var(--surface-raised);
+  box-shadow:var(--shadow-1);
+  transition:
+    transform var(--t-mid) var(--ease),
+    border-color var(--t-mid) var(--ease),
+    box-shadow var(--t-mid) var(--ease);
+}
+.card__icon{
+  display:grid;
+  place-items:center;
+  width:42px;height:42px;
+  margin-bottom:18px;
+  border-radius:12px;
+  color:var(--mint);
+  background:linear-gradient(180deg,rgb(47 224 140 / 18%),rgb(47 224 140 / 6%));
+  border:1px solid rgb(47 224 140 / 24%);
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 12%);
+}
+.card__icon svg{width:21px;height:21px}
+.card h3{font-size:16.5px;font-weight:600;letter-spacing:-.012em;margin-bottom:7px}
+.card p{font-size:14px;line-height:1.62;color:var(--text-3);max-width:38ch}
+.card:hover{
+  border-color:var(--edge-strong);
+  box-shadow:var(--shadow-2);
+  transform:translateY(-2px);
+}
+
+/* ============================================================
+   4. NAVIGATION
+   ============================================================ */
+.nav{
+  position:fixed;
+  inset:0 0 auto;
+  z-index:100;
+  transition:background-color var(--t-slow) var(--ease), box-shadow var(--t-slow) var(--ease), border-color var(--t-slow) var(--ease);
+  border-bottom:1px solid transparent;
+}
+.nav::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:rgb(6 22 16 / 55%);
+  border-bottom:1px solid rgb(255 255 255 / 7%);
+  opacity:0;
+  transition:opacity var(--t-slow) var(--ease);
+}
+.nav.is-scrolled::before{opacity:1}
+.nav.is-open::before{opacity:1}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .nav.is-scrolled::before{
+    -webkit-backdrop-filter:blur(18px) saturate(150%);
+    backdrop-filter:blur(18px) saturate(150%);
+  }
+}
+.nav__inner{
+  display:flex;
+  align-items:center;
+  gap:28px;
+  height:var(--nav-h);
+}
+.brand{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-size:16.5px;
+  font-weight:650;
+  letter-spacing:-.02em;
+  margin-right:auto;
+}
+.brand__mark{
+  display:grid;
+  place-items:center;
+  width:32px;height:32px;
+  border-radius:10px;
+  color:#04150d;
+  background:linear-gradient(180deg,#7df7bd,#18c979);
+  border:1px solid rgb(255 255 255 / 40%);
+  box-shadow:0 6px 16px -8px rgb(47 224 140 / 90%);
+}
+.brand__mark svg{width:18px;height:18px}
+.nav__links{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.nav__links a{
+  position:relative;
+  padding:9px 13px;
+  border-radius:var(--r-sm);
+  font-size:14px;
+  font-weight:500;
+  color:var(--text-2);
+  transition:color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease);
+}
+.nav__links a:hover{color:var(--text);background:var(--surface-2)}
+.nav__links a[aria-current="true"]{color:var(--text)}
+.nav__links a[aria-current="true"]::after{
+  content:"";
+  position:absolute;
+  left:13px;right:13px;bottom:3px;
+  height:1.5px;
+  border-radius:2px;
+  background:var(--emerald);
+}
+.nav__actions{display:flex;align-items:center;gap:8px}
+.nav__toggle{
+  display:none;
+  width:44px;height:44px;
+  padding:0;
+  place-items:center;
+  border-radius:var(--r-sm);
+  border:1px solid var(--edge);
+  background:var(--surface-2);
+}
+.nav__toggle span{
+  display:block;
+  width:17px;height:1.5px;
+  margin:3.5px auto;
+  border-radius:2px;
+  background:var(--text);
+  transition:transform var(--t-mid) var(--ease), opacity var(--t-fast) var(--ease);
+}
+.nav.is-open .nav__toggle span:nth-child(1){transform:translateY(5px) rotate(45deg)}
+.nav.is-open .nav__toggle span:nth-child(2){opacity:0}
+.nav.is-open .nav__toggle span:nth-child(3){transform:translateY(-5px) rotate(-45deg)}
+
+.mobile{
+  display:none;
+  border-top:1px solid rgb(255 255 255 / 8%);
+  background:rgb(5 19 13 / 97%);
+  box-shadow:0 28px 56px -28px rgb(0 0 0 / 85%);
+  opacity:0;
+  transform:translateY(-6px);
+  transition:opacity 180ms var(--ease), transform 180ms var(--ease);
+}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .mobile{
+    background:rgb(5 19 13 / 86%);
+    -webkit-backdrop-filter:blur(22px) saturate(140%);
+    backdrop-filter:blur(22px) saturate(140%);
+  }
+}
+.mobile.is-open{opacity:1;transform:none}
+.mobile[hidden]{display:none}
+.mobile__inner{
+  padding:16px var(--gutter) 26px;
+  display:grid;
+  gap:6px;
+}
+.mobile a{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 4px;
+  font-size:15px;
+  color:var(--text-2);
+  border-bottom:1px solid rgb(255 255 255 / 7%);
+}
+.mobile a:hover{color:var(--text)}
+.mobile .btn{margin-top:14px;border-bottom:0;color:#03170e}
+.mobile .btn--glass{color:var(--text);border-bottom:0}
+
+/* ============================================================
+   5. HERO
+   ============================================================ */
+.hero{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  min-height:min(100svh, 940px);
+  padding-top:calc(var(--nav-h) + clamp(40px,7vw,80px));
+  padding-bottom:clamp(28px,4vw,48px);
+  overflow:hidden;
+  isolation:isolate;
+}
+.hero__bg{
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  overflow:hidden;
+}
+.hero__media{
+  position:absolute;
+  inset:-9% -5%;
+  will-change:transform;
+}
+.hero__media img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:70% 50%;
+  filter:saturate(1.06) contrast(1.03);
+}
+.hero__scrim{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,rgb(4 18 13 / 96%) 0%,rgb(4 18 13 / 84%) 30%,rgb(4 18 13 / 46%) 54%,rgb(4 18 13 / 12%) 74%,transparent 100%),
+    linear-gradient(180deg,rgb(4 18 13 / 78%) 0%,transparent 26%,transparent 62%,rgb(4 18 13 / 92%) 100%);
+}
+.hero__orb{
+  position:absolute;
+  border-radius:50%;
+  pointer-events:none;
+  will-change:transform;
+}
+.hero__orb--1{
+  width:min(46vw,540px);
+  aspect-ratio:1;
+  left:-12%;top:6%;
+  background:radial-gradient(circle,rgb(47 224 140 / 22%) 0%,transparent 68%);
+}
+.hero__orb--2{
+  width:min(38vw,420px);
+  aspect-ratio:1;
+  right:2%;bottom:-14%;
+  background:radial-gradient(circle,rgb(18 185 117 / 20%) 0%,transparent 70%);
+}
+.hero__inner{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);
+  align-items:end;
+  gap:clamp(28px,5vw,64px);
+}
+.hero__copy{max-width:640px}
+.hero h1{
+  margin:22px 0 0;
+  font-size:clamp(2.55rem,6.1vw,4.6rem);
+  line-height:1.02;
+  letter-spacing:-.035em;
+  font-weight:600;
+  text-wrap:balance;
+}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(96deg,var(--mint) 0%,#4ef0a2 44%,#12b975 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.hero__lead{
+  margin-top:22px;
+  max-width:52ch;
+  font-size:clamp(15px,1.35vw,17.5px);
+  line-height:1.65;
+  color:var(--text-2);
+  text-wrap:pretty;
+}
+.hero__actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:32px;
+}
+.hero__meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 22px;
+  margin-top:26px;
+  font-size:12.5px;
+  color:var(--text-3);
+}
+.hero__meta li{display:flex;align-items:center;gap:7px}
+.hero__meta svg{width:14px;height:14px;color:var(--emerald);flex:none}
+
+/* hero panel — floating material level */
+.hero__panel{
+  align-self:end;
+  justify-self:end;
+  width:100%;
+  max-width:352px;
+  padding:20px;
+  border-radius:var(--r-xl);
+  /* more opaque than generic glass: sits over a visually busy photo */
+  background:rgb(7 24 18 / 74%);
+  box-shadow:var(--shadow-3), inset 0 1px 0 rgb(255 255 255 / 10%);
+}
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .hero__panel{
+    background:rgb(7 24 18 / 66%);
+    -webkit-backdrop-filter:blur(26px) saturate(150%);
+    backdrop-filter:blur(26px) saturate(150%);
+  }
+}
+.panel__head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-size:11.5px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--text-3);
+}
+.panel__live{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:var(--mint);
+  letter-spacing:.06em;
+}
+.panel__live i{
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--emerald);
+  box-shadow:0 0 0 3px rgb(47 224 140 / 20%);
+}
+.panel__score{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  margin:10px 0 2px;
+}
+.panel__score span{
+  font-size:46px;
+  font-weight:600;
+  letter-spacing:-.04em;
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.panel__score small{font-size:11.5px;color:var(--text-3);letter-spacing:.04em}
+.panel__bars{
+  display:flex;
+  align-items:flex-end;
+  gap:6px;
+  height:56px;
+  margin:18px 0 18px;
+}
+.panel__bars span{
+  flex:1;
+  border-radius:4px 4px 2px 2px;
+  background:linear-gradient(180deg,rgb(47 224 140 / 78%),rgb(47 224 140 / 14%));
+  border-top:1px solid rgb(168 247 205 / 55%);
+}
+.panel__bars span:nth-child(1){height:32%}
+.panel__bars span:nth-child(2){height:48%}
+.panel__bars span:nth-child(3){height:40%}
+.panel__bars span:nth-child(4){height:66%}
+.panel__bars span:nth-child(5){height:58%}
+.panel__bars span:nth-child(6){height:92%;background:linear-gradient(180deg,#a8f7cd,rgb(47 224 140 / 24%))}
+.panel__rows{display:grid;gap:1px}
+.panel__rows li{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 2px;
+  font-size:12.5px;
+  color:var(--text-3);
+  border-top:1px solid rgb(255 255 255 / 7%);
+}
+.panel__rows b{
+  color:var(--text);
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+
+/* hero stat strip */
+.hero__stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:clamp(14px,3vw,40px);
+  margin-top:clamp(36px,6vw,72px);
+  padding-top:26px;
+  border-top:1px solid rgb(255 255 255 / 11%);
+}
+.hero__stats dd{margin:0}
+.stat{
+  display:flex;
+  flex-direction:column-reverse;
+  align-items:flex-start;
+}
+.stat__value{
+  display:block;
+  font-size:clamp(1.4rem,2.4vw,1.85rem);
+  font-weight:600;
+  letter-spacing:-.025em;
+  line-height:1.15;
+  font-variant-numeric:tabular-nums;
+}
+.stat__label{
+  display:block;
+  margin-top:4px;
+  font-size:12.5px;
+  color:var(--text-3);
+}
+
+/* ============================================================
+   6. TRUST MARQUEE
+   ============================================================ */
+.trust{
+  position:relative;
+  z-index:1;
+  padding-block:clamp(30px,4vw,44px);
+  border-block:1px solid rgb(255 255 255 / 7%);
+  background:rgb(6 24 17 / 55%);
+}
+.trust__label{
+  text-align:center;
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--text-3);
+  margin-bottom:22px;
+}
+.marquee{
+  --marquee-gap:clamp(34px,6vw,72px);
+  position:relative;
+  display:flex;
+  overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+}
+.marquee__track{
+  display:flex;
+  flex:0 0 auto;
+  align-items:center;
+  gap:var(--marquee-gap);
+  padding-right:var(--marquee-gap);
+  animation:marquee 36s linear infinite;
+}
+.marquee:hover .marquee__track,
+.marquee:focus-within .marquee__track{animation-play-state:paused}
+.marquee__track span{
+  font-size:clamp(15px,1.6vw,18px);
+  font-weight:600;
+  letter-spacing:-.015em;
+  color:var(--text-3);
+  white-space:nowrap;
+  transition:color var(--t-mid) var(--ease);
+}
+.marquee__track span:hover{color:var(--text)}
+@keyframes marquee{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(-100%,0,0)}
+}
+
+/* ============================================================
+   7. SECTION HEADS
+   ============================================================ */
+.section__head{
+  display:grid;
+  gap:16px;
+  max-width:660px;
+  margin-bottom:clamp(32px,5vw,56px);
+}
+.section__head h2{
+  font-size:clamp(1.9rem,3.8vw,3rem);
+  line-height:1.1;
+  letter-spacing:-.028em;
+  font-weight:600;
+  text-wrap:balance;
+}
+.section__lead{
+  font-size:clamp(14.5px,1.2vw,16.5px);
+  line-height:1.68;
+  color:var(--text-2);
+  max-width:58ch;
+}
+.section__head--split{
+  max-width:none;
+  grid-template-columns:minmax(0,1fr) minmax(0,.8fr);
+  align-items:end;
+  gap:clamp(20px,4vw,60px);
+}
+.section__head--split .section__lead{justify-self:end;max-width:42ch}
+
+/* ============================================================
+   8. BENTO GRID
+   ============================================================ */
+.bento{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  grid-auto-rows:minmax(0,auto);
+  gap:14px;
+}
+.bento > *{min-width:0}
+.card--feature{
+  grid-column:span 4;
+  grid-row:span 2;
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+  padding:clamp(22px,3vw,34px);
+  background:
+    radial-gradient(120% 90% at 8% 0%,rgb(47 224 140 / 13%) 0%,transparent 62%),
+    var(--surface-raised);
+  border-color:rgb(47 224 140 / 18%);
+  overflow:hidden;
+}
+.card--feature__top{display:grid;gap:10px;max-width:44ch}
+.card--feature h3{font-size:clamp(1.15rem,1.7vw,1.4rem);letter-spacing:-.02em}
+.card--feature p{max-width:46ch}
+.card--side{grid-column:span 2}
+.card--side,.card--third{display:flex;flex-direction:column}
+.card--side p + .bento-mini{margin-top:auto}
+.card--third{grid-column:span 2}
+.card--feature__visual{
+  position:relative;
+  flex:1;
+  min-height:190px;
+  margin-top:auto;
+  border-radius:var(--r-md);
+  border:1px solid rgb(255 255 255 / 8%);
+  background:
+    linear-gradient(180deg,rgb(6 24 17 / 90%),rgb(4 16 11 / 96%));
+  overflow:hidden;
+}
+.layer{
+  position:absolute;
+  left:50%;
+  width:min(72%,320px);
+  aspect-ratio:16/7;
+  border-radius:14px;
+  border:1px solid rgb(255 255 255 / 22%);
+  transform:translateX(-50%) rotate(-6deg);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 16%),
+    0 18px 40px -22px rgb(0 0 0 / 90%);
+}
+.layer--1{
+  bottom:16%;
+  background:linear-gradient(160deg,rgb(47 224 140 / 30%),rgb(15 122 77 / 22%));
+  transform:translateX(-50%) rotate(-8deg) translateY(0);
+}
+.layer--2{
+  bottom:32%;
+  background:linear-gradient(160deg,rgb(168 247 205 / 26%),rgb(47 224 140 / 14%));
+  transform:translateX(-50%) rotate(-2deg);
+  -webkit-backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px);
+}
+.layer--3{
+  bottom:48%;
+  background:linear-gradient(160deg,rgb(255 255 255 / 18%),rgb(255 255 255 / 4%));
+  transform:translateX(-50%) rotate(4deg);
+  -webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(10px);
+}
+.layer__glow{
+  position:absolute;
+  inset:auto -20% -60% -20%;
+  height:70%;
+  background:radial-gradient(50% 100% at 50% 100%,rgb(47 224 140 / 34%),transparent 70%);
+  pointer-events:none;
+}
+.visual__tag{
+  position:absolute;
+  top:12px;left:14px;
+  font-size:10.5px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--mint);
+}
+.visual__meta{
+  position:absolute;
+  right:14px;bottom:12px;
+  font-size:10.5px;
+  letter-spacing:.06em;
+  color:var(--text-3);
+  font-variant-numeric:tabular-nums;
+}
+.card--feature__visual .layer{
+  transition:transform var(--t-slow) var(--ease);
+}
+.card--feature:hover .layer--1{transform:translateX(-50%) rotate(-10deg) translateY(-6px)}
+.card--feature:hover .layer--2{transform:translateX(-50%) rotate(-1deg) translateY(-3px)}
+.card--feature:hover .layer--3{transform:translateX(-50%) rotate(6deg) translateY(-1px)}
+
+.bento-mini{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:18px;
+  font-size:12px;
+  color:var(--text-3);
+}
+.bento-mini b{
+  padding:3px 8px;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:600;
+  color:var(--mint);
+  background:rgb(47 224 140 / 12%);
+  border:1px solid rgb(47 224 140 / 20%);
+  font-variant-numeric:tabular-nums;
+}
+
+/* ============================================================
+   9. SHOWCASE
+   ============================================================ */
+.showcase__grid{
+  display:grid;
+  grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+  align-items:center;
+  gap:clamp(30px,5vw,64px);
+}
+.showcase__copy h2{
+  margin-top:16px;
+  font-size:clamp(1.85rem,3.4vw,2.7rem);
+  line-height:1.1;
+  letter-spacing:-.028em;
+  font-weight:600;
+  text-wrap:balance;
+}
+.showcase__copy > p{
+  margin-top:18px;
+  font-size:15px;
+  line-height:1.68;
+  color:var(--text-2);
+  max-width:44ch;
+}
+.checklist{
+  display:grid;
+  gap:14px;
+  margin-top:28px;
+}
+.checklist li{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:12px;
+  align-items:start;
+  font-size:14px;
+  color:var(--text-2);
+  line-height:1.55;
+}
+.checklist .tick{
+  display:grid;
+  place-items:center;
+  width:22px;height:22px;
+  margin-top:1px;
+  border-radius:7px;
+  color:#04150d;
+  background:linear-gradient(180deg,#8bf8c6,#25d68c);
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 45%);
+}
+.checklist .tick svg{width:13px;height:13px}
+.checklist b{color:var(--text);font-weight:600}
+
+.showcase__frame{
+  position:relative;
+  margin:0;
+  padding:10px;
+  border-radius:var(--r-xl);
+  box-shadow:var(--shadow-3), inset 0 1px 0 rgb(255 255 255 / 12%);
+}
+.showcase__media{
+  position:relative;
+  overflow:hidden;
+  border-radius:calc(var(--r-xl) - 10px);
+  background:#04120d;
+}
+.showcase__media img{
+  width:100%;
+  height:100%;
+  aspect-ratio:16/11;
+  object-fit:cover;
+  transform:scale(1.08);
+  will-change:transform;
+}
+.showcase__media::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,transparent 52%,rgb(4 18 13 / 82%) 100%);
+  pointer-events:none;
+}
+.showcase__tag{
+  position:absolute;
+  left:22px;
+  bottom:22px;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 16px 10px 12px;
+  border-radius:var(--r-pill);
+  border:1px solid rgb(255 255 255 / 22%);
+  background:rgb(5 24 17 / 74%);
+  font-size:12px;
+  color:var(--text-2);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  backdrop-filter:blur(14px) saturate(140%);
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 14%);
+}
+.showcase__tag b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.showcase__tag .dot{
+  width:28px;height:28px;
+  display:grid;place-items:center;
+  border-radius:50%;
+  color:#04150d;
+  background:linear-gradient(180deg,#8bf8c6,#25d68c);
+}
+.showcase__tag .dot svg{width:14px;height:14px}
+
+/* ============================================================
+   10. TESTIMONIALS
+   ============================================================ */
+.quotes{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.quote{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  margin:0;
+  padding:clamp(20px,2.6vw,28px);
+  border-radius:var(--r-lg);
+  border:1px solid var(--edge);
+  background:var(--surface-raised);
+  transition:border-color var(--t-mid) var(--ease), transform var(--t-mid) var(--ease);
+}
+.quote:hover{border-color:var(--edge-strong);transform:translateY(-2px)}
+.quote blockquote{
+  margin:0;
+  font-size:15px;
+  line-height:1.62;
+  color:var(--text);
+  letter-spacing:-.004em;
+}
+.quote blockquote::before{
+  content:"“";
+  display:block;
+  font-size:38px;
+  line-height:.6;
+  margin-bottom:12px;
+  color:rgb(47 224 140 / 55%);
+  font-family:Georgia,serif;
+}
+.quote figcaption{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-top:auto;
+  padding-top:18px;
+  border-top:1px solid rgb(255 255 255 / 8%);
+}
+.avatar{
+  display:grid;
+  place-items:center;
+  width:36px;height:36px;
+  flex:none;
+  border-radius:50%;
+  font-size:12.5px;
+  font-weight:600;
+  color:#04150d;
+  background:linear-gradient(160deg,#a8f7cd,#25d68c);
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 50%);
+}
+.quote figcaption span{display:block;line-height:1.35}
+.quote figcaption b{display:block;font-size:13.5px;font-weight:600}
+.quote figcaption span span{font-size:12px;color:var(--text-3)}
+
+/* ============================================================
+   11. PRICING
+   ============================================================ */
+.pricing__head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:end;
+  justify-content:space-between;
+  gap:24px;
+  margin-bottom:clamp(30px,4vw,46px);
+}
+.pricing__head .section__head{margin-bottom:0}
+.billing{
+  display:inline-flex;
+  gap:4px;
+  padding:4px;
+  border-radius:var(--r-pill);
+  border:1px solid var(--edge);
+  background:var(--surface-1);
+}
+.billing button{
+  padding:9px 16px;
+  border-radius:var(--r-pill);
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--text-3);
+  transition:background-color var(--t-mid) var(--ease), color var(--t-mid) var(--ease), box-shadow var(--t-mid) var(--ease);
+}
+.billing button:hover{color:var(--text)}
+.billing button[aria-pressed="true"]{
+  color:#04150d;
+  background:linear-gradient(180deg,#8bf8c6,#2ad78e);
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 45%), 0 6px 16px -8px rgb(47 224 140 / 70%);
+}
+.billing .save{
+  margin-left:6px;
+  font-size:10.5px;
+  padding:2px 6px;
+  border-radius:5px;
+  background:rgb(47 224 140 / 18%);
+  color:var(--mint);
+}
+.billing button[aria-pressed="true"] .save{background:rgb(3 23 14 / 16%);color:#062015}
+
+.plans{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.plan{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  padding:clamp(22px,3vw,32px);
+  border-radius:var(--r-lg);
+  border:1px solid var(--edge);
+  background:var(--bg-soft);
+  box-shadow:var(--shadow-1);
+  transition:border-color var(--t-mid) var(--ease), box-shadow var(--t-mid) var(--ease), transform var(--t-mid) var(--ease);
+}
+.plan:hover{border-color:var(--edge-strong);box-shadow:var(--shadow-2)}
+.plan--selected{
+  background:
+    radial-gradient(110% 80% at 50% 0%,rgb(47 224 140 / 16%) 0%,transparent 66%),
+    linear-gradient(180deg,#0c2a1e,#07190f);
+  border-color:var(--edge-tint);
+  box-shadow:var(--shadow-glow), inset 0 1px 0 rgb(255 255 255 / 14%);
+}
+.plan__badge{
+  position:absolute;
+  top:-11px;left:clamp(22px,3vw,32px);
+  padding:4px 10px;
+  border-radius:var(--r-pill);
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:#04150d;
+  background:linear-gradient(180deg,#9cf9cf,#2ad78e);
+  box-shadow:0 8px 20px -10px rgb(47 224 140 / 80%);
+}
+.plan__name{font-size:14px;font-weight:600;letter-spacing:.01em}
+.plan__desc{font-size:12.5px;color:var(--text-3);margin-top:4px}
+.plan__price{
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  padding-bottom:2px;
+}
+.plan__price .amount{
+  font-size:clamp(1.9rem,3vw,2.3rem);
+  font-weight:600;
+  letter-spacing:-.035em;
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.plan__price .currency{font-size:13px;color:var(--text-3);font-weight:500}
+.plan__price .unit{font-size:12.5px;color:var(--text-3)}
+.plan__list{display:grid;gap:10px;padding-top:18px;border-top:1px solid rgb(255 255 255 / 8%)}
+.plan__list li{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:9px;
+  align-items:start;
+  font-size:13px;
+  color:var(--text-2);
+  line-height:1.5;
+}
+.plan__list svg{width:15px;height:15px;margin-top:2px;color:var(--emerald);flex:none}
+.plan__list li.muted{color:var(--text-3);opacity:.65}
+.plan__list li.muted svg{color:var(--text-3)}
+.plan .btn{margin-top:auto}
+.plan__note{
+  font-size:11px;
+  color:var(--text-3);
+  text-align:center;
+  min-height:16px;
+}
+
+/* ============================================================
+   12. FAQ
+   ============================================================ */
+.faq__grid{
+  display:grid;
+  grid-template-columns:minmax(0,.62fr) minmax(0,1fr);
+  gap:clamp(28px,5vw,64px);
+  align-items:start;
+}
+.faq__aside{position:sticky;top:calc(var(--nav-h) + 28px)}
+.faq__aside h2{
+  margin-top:16px;
+  font-size:clamp(1.8rem,3.2vw,2.5rem);
+  line-height:1.12;
+  letter-spacing:-.028em;
+  font-weight:600;
+}
+.faq__aside p{margin-top:14px;font-size:14px;color:var(--text-3);max-width:32ch;line-height:1.65}
+.faq__aside .btn{margin-top:24px}
+
+.faq__list{border-top:1px solid rgb(255 255 255 / 9%)}
+.faq__item{border-bottom:1px solid rgb(255 255 255 / 9%)}
+.faq__item summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding:20px 2px;
+  font-size:14.5px;
+  font-weight:500;
+  color:var(--text);
+  cursor:pointer;
+  list-style:none;
+  transition:color var(--t-fast) var(--ease);
+}
+.faq__item summary::-webkit-details-marker{display:none}
+.faq__item summary:hover{color:var(--mint)}
+.faq__sign{
+  position:relative;
+  display:grid;
+  place-items:center;
+  width:26px;height:26px;
+  flex:none;
+  border-radius:8px;
+  border:1px solid var(--edge);
+  background:var(--surface-2);
+  transition:transform var(--t-mid) var(--ease), background-color var(--t-mid) var(--ease), border-color var(--t-mid) var(--ease);
+}
+.faq__sign::before,
+.faq__sign::after{
+  content:"";
+  position:absolute;
+  background:var(--text-2);
+  border-radius:2px;
+  transition:opacity var(--t-mid) var(--ease), transform var(--t-mid) var(--ease);
+}
+.faq__sign::before{width:11px;height:1.5px}
+.faq__sign::after{width:1.5px;height:11px}
+.faq__item[open] .faq__sign{
+  transform:rotate(90deg);
+  background:rgb(47 224 140 / 16%);
+  border-color:rgb(47 224 140 / 34%);
+}
+.faq__item[open] .faq__sign::after{opacity:0;transform:scaleY(.4)}
+.faq__item[open] .faq__sign::before{background:var(--mint)}
+.faq__body{
+  padding:0 44px 24px 2px;
+  font-size:13.8px;
+  line-height:1.7;
+  color:var(--text-3);
+  max-width:62ch;
+}
+.faq__item[open] .faq__body{animation:fade-up var(--t-slow) var(--ease) both}
+@keyframes fade-up{
+  from{opacity:0;transform:translateY(-4px)}
+  to{opacity:1;transform:none}
+}
+
+/* ============================================================
+   13. FINAL CTA
+   ============================================================ */
+.cta{
+  position:relative;
+  overflow:hidden;
+  padding:clamp(34px,6vw,68px);
+  border-radius:var(--r-xl);
+  border:1px solid var(--edge-strong);
+  background:
+    radial-gradient(80% 120% at 88% 6%,rgb(47 224 140 / 20%) 0%,transparent 62%),
+    radial-gradient(60% 100% at 6% 100%,rgb(15 122 77 / 26%) 0%,transparent 66%),
+    linear-gradient(180deg,rgb(9 31 22 / 92%),rgb(5 19 13 / 96%));
+  box-shadow:var(--shadow-3), inset 0 1px 0 rgb(255 255 255 / 12%);
+}
+.cta::before{
+  content:"";
+  position:absolute;
+  width:min(52vw,520px);
+  aspect-ratio:1;
+  right:-14%;top:-40%;
+  border-radius:50%;
+  border:1px solid rgb(47 224 140 / 16%);
+  box-shadow:0 0 0 40px rgb(47 224 140 / 4%), 0 0 0 90px rgb(47 224 140 / 3%);
+  pointer-events:none;
+}
+.cta__inner{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:clamp(26px,4vw,56px);
+}
+.cta h2{
+  margin-top:14px;
+  font-size:clamp(1.8rem,3.6vw,2.7rem);
+  line-height:1.1;
+  letter-spacing:-.03em;
+  font-weight:600;
+  max-width:20ch;
+  text-wrap:balance;
+}
+.cta p{margin-top:14px;font-size:14.5px;line-height:1.65;color:var(--text-2);max-width:46ch}
+.cta__actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.cta__side{
+  display:grid;
+  gap:10px;
+  min-width:190px;
+  padding:18px;
+  border-radius:var(--r-md);
+  border:1px solid var(--edge);
+  background:rgb(4 18 13 / 46%);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+}
+.cta__side span{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  font-size:12px;
+  color:var(--text-3);
+}
+.cta__side b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+
+/* ============================================================
+   14. FOOTER
+   ============================================================ */
+.footer{
+  position:relative;
+  z-index:1;
+  padding-block:clamp(44px,6vw,72px) 28px;
+  border-top:1px solid rgb(255 255 255 / 8%);
+  background:rgb(4 16 11 / 70%);
+}
+.footer__grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,.6fr));
+  gap:clamp(28px,4vw,56px);
+}
+.footer__brand p{
+  margin-top:14px;
+  font-size:13px;
+  line-height:1.65;
+  color:var(--text-3);
+  max-width:34ch;
+}
+.footer__col h3{
+  font-size:11.5px;
+  font-weight:600;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--text-3);
+  margin-bottom:14px;
+}
+.footer__col ul{display:grid;gap:10px}
+.footer__col a{
+  font-size:13.5px;
+  color:var(--text-2);
+  transition:color var(--t-fast) var(--ease);
+}
+.footer__col a:hover{color:var(--mint)}
+.footer__bottom{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-top:clamp(32px,5vw,52px);
+  padding-top:22px;
+  border-top:1px solid rgb(255 255 255 / 8%);
+  font-size:12px;
+  color:var(--text-3);
+}
+.footer__bottom ul{display:flex;flex-wrap:wrap;gap:18px}
+.footer__bottom a:hover{color:var(--text)}
+.badge-material{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:5px 10px;
+  border-radius:var(--r-pill);
+  border:1px solid var(--edge);
+  background:var(--surface-1);
+  font-size:11px;
+  letter-spacing:.03em;
+}
+.badge-material i{
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--emerald);
+}
+
+/* ============================================================
+   15. REVEAL & MOTION
+   ============================================================ */
+.js .reveal{
+  opacity:0;
+  transform:translateY(18px);
+  transition:opacity 620ms var(--ease), transform 620ms var(--ease);
+}
+.js .reveal.is-in{
+  opacity:1;
+  transform:none;
+}
+.js .reveal[data-delay="1"]{transition-delay:80ms}
+.js .reveal[data-delay="2"]{transition-delay:160ms}
+.js .reveal[data-delay="3"]{transition-delay:240ms}
+
+/* ============================================================
+   16. RESPONSIVE
+   ============================================================ */
+@media (max-width:1080px){
+  .hero__inner{grid-template-columns:minmax(0,1fr) minmax(0,320px)}
+  .showcase__grid{grid-template-columns:1fr;gap:34px}
+  .showcase__copy > p{max-width:56ch}
+  .checklist{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 24px}
+  .quotes{grid-template-columns:1fr 1fr}
+  .quotes .quote:last-child{grid-column:span 2}
+}
+
+@media (max-width:900px){
+  .nav__links,.nav__login{display:none}
+  .nav__toggle{display:grid}
+  .mobile{display:block}
+  .hero{min-height:auto;padding-top:calc(var(--nav-h) + 56px)}
+  .hero__inner{grid-template-columns:1fr;align-items:start}
+  .hero__panel{justify-self:start;max-width:420px;margin-top:8px}
+  .hero__scrim{
+    background:
+      linear-gradient(180deg,rgb(4 18 13 / 88%) 0%,rgb(4 18 13 / 62%) 38%,rgb(4 18 13 / 84%) 76%,rgb(4 18 13 / 97%) 100%);
+  }
+  .hero__media{inset:-4% -6%}
+  .hero__media img{object-position:62% 42%}
+  .hero__orb--1{top:-4%;left:-30%}
+  .bento{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .card--feature{grid-column:span 2;grid-row:auto}
+  .card--side,.card--third{grid-column:span 1}
+  .bento > .card:last-child{grid-column:span 2}
+  .pricing__head{flex-direction:column;align-items:flex-start}
+  .plans{grid-template-columns:1fr}
+  .plan--selected{order:-1}
+  .faq__grid{grid-template-columns:1fr;gap:26px}
+  .faq__aside{position:static}
+  .cta__inner{grid-template-columns:1fr}
+  .cta__side{max-width:280px}
+  .footer__grid{grid-template-columns:1fr 1fr}
+  .footer__brand{grid-column:span 2}
+  .section__head--split{grid-template-columns:1fr}
+  .section__head--split .section__lead{justify-self:start;max-width:56ch}
+}
+
+@media (max-width:640px){
+  :root{--nav-h:62px}
+  .hero{padding-top:calc(var(--nav-h) + 40px)}
+  .hero__stats{grid-template-columns:1fr 1fr;gap:18px 20px}
+  .hero__stats .stat:last-child{grid-column:span 2}
+  .hero__actions .btn{width:100%}
+  .hero__panel{max-width:none}
+  .bento{grid-template-columns:1fr}
+  .card--feature,.card--side,.card--third{grid-column:span 1}
+  .bento > .card:last-child{grid-column:span 1}
+  .card--feature__visual{min-height:170px}
+  .quotes{grid-template-columns:1fr}
+  .quotes .quote:last-child{grid-column:span 1}
+  .checklist{grid-template-columns:1fr}
+  .cta{padding:26px 20px}
+  .cta__side{max-width:none;width:100%}
+  .faq__body{padding-right:0}
+  .footer__grid{grid-template-columns:1fr 1fr;gap:28px}
+  .footer__brand{grid-column:span 2}
+  .footer__bottom{flex-direction:column;align-items:flex-start}
+  .marquee__track{gap:34px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+  .js .reveal{opacity:1;transform:none}
+  .marquee{display:block;overflow:visible;mask-image:none;-webkit-mask-image:none}
+  .marquee__track{
+    animation:none;
+    flex-wrap:wrap;
+    justify-content:center;
+    padding-right:0;
+    row-gap:14px;
+  }
+  .marquee__track[aria-hidden="true"]{display:none}
+  [data-parallax]{transform:none !important}
+  .hero__media img,.showcase__media img{will-change:auto}
+}
+
+@media (prefers-contrast:more){
+  .glass,.card,.plan,.quote{border-color:rgb(255 255 255 / 40%)}
+  .hero__lead,.section__lead{color:#d9ece3}
+  .card p,.quote blockquote{color:#cfe4da}
+}
+
+@media (forced-colors:active){
+  .glass,.card,.plan,.quote,.cta,.showcase__frame{border:1px solid CanvasText}
+  .btn{border:1px solid ButtonText}
+}
+
+@media print{
+  .nav,.mobile{display:none}
+  .js .reveal{opacity:1;transform:none}
+  .hero{min-height:auto}
+  .marquee__track{animation:none}
+  body{background:#fff;color:#111}
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Lewati ke konten utama</a>
+
+<!-- ================= NAVIGATION ================= -->
+<header class="nav" data-nav>
+  <div class="nav__inner shell">
+    <a class="brand" href="#hero" aria-label="Verdant, kembali ke atas">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21c0-6 3-10 8-11-1 7-4 10-8 11Z"/>
+          <path d="M12 21C8 16 6 12 4 9c5 0 8 3 8 12Z"/>
+        </svg>
+      </span>
+      <span class="brand__name">Verdant</span>
+    </a>
+
+    <nav class="nav__links" aria-label="Navigasi utama">
+      <a href="#fitur">Fitur</a>
+      <a href="#produk">Produk</a>
+      <a href="#harga">Harga</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="nav__actions">
+      <a class="btn btn--ghost nav__login" href="#harga">Masuk</a>
+      <a class="btn btn--primary btn--sm" href="#harga">Mulai gratis</a>
+      <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Buka menu navigasi">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile" id="mobile-menu" hidden>
+    <nav class="mobile__inner" aria-label="Navigasi seluler">
+      <a href="#fitur">Fitur <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+      <a href="#produk">Produk <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+      <a href="#harga">Harga <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+      <a href="#faq">FAQ <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+      <a class="btn btn--glass btn--block" href="#harga">Masuk</a>
+      <a class="btn btn--primary btn--block" href="#harga">Mulai gratis</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="hero" aria-labelledby="hero-title">
+    <div class="hero__bg" aria-hidden="true">
+      <div class="hero__media" data-parallax="0.16">
+        <img src="assets/hero-bg.webp" alt="" width="1536" height="864" fetchpriority="high" decoding="async">
+      </div>
+      <div class="hero__scrim"></div>
+      <div class="hero__orb hero__orb--1" data-parallax="0.34"></div>
+      <div class="hero__orb hero__orb--2" data-parallax="-0.2"></div>
+    </div>
+
+    <div class="shell hero__inner">
+      <div class="hero__copy">
+        <p class="pill"><span class="pill__dot" aria-hidden="true"></span> Baru · Material Engine 2.0</p>
+        <h1 id="hero-title">Antarmuka yang terasa <em>hidup</em>, sehalus kaca.</h1>
+        <p class="hero__lead">
+          Verdant menyatukan sistem material, token desain, dan performa dalam satu ruang kerja.
+          Rancang permukaan yang beradaptasi dengan cahaya, konten, dan konteks pengguna — tanpa mengorbankan keterbacaan.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#harga">
+            Mulai gratis
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn--glass" href="#produk">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m10 9 5 3-5 3V9Z" fill="currentColor" stroke="none"/></svg>
+            Lihat demo 2 menit
+          </a>
+        </div>
+        <ul class="hero__meta">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>
+            Gratis 14 hari
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>
+            Tanpa kartu kredit
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>
+            Batalkan kapan saja
+          </li>
+        </ul>
+      </div>
+
+      <aside class="hero__panel glass" data-parallax="-0.09" aria-label="Pratinjau performa antarmuka">
+        <div class="panel__head">
+          <span>Performa langsung</span>
+          <span class="panel__live"><i aria-hidden="true"></i>Aktif</span>
+        </div>
+        <p class="panel__score"><span>98</span><small>Lighthouse / 100</small></p>
+        <div class="panel__bars" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <ul class="panel__rows">
+          <li><span>Largest Contentful Paint</span><b>0,4 s</b></li>
+          <li><span>Cumulative Layout Shift</span><b>0,00</b></li>
+          <li><span>Material aktif</span><b>12</b></li>
+        </ul>
+      </aside>
+    </div>
+
+    <div class="shell">
+      <dl class="hero__stats">
+        <div class="stat">
+          <dt class="stat__label">Tim produk aktif</dt>
+          <dd class="stat__value" data-count="12400">12.400</dd>
+        </div>
+        <div class="stat">
+          <dt class="stat__label">Komponen live</dt>
+          <dd class="stat__value"><span data-count="3.2" data-decimals="1">3,2</span> jt</dd>
+        </div>
+        <div class="stat">
+          <dt class="stat__label">Uptime 12 bulan</dt>
+          <dd class="stat__value"><span data-count="99.99" data-decimals="2">99,99</span>%</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ================= TRUST ================= -->
+  <section class="trust" aria-label="Dipercaya oleh tim produk">
+    <p class="trust__label">Dipercaya tim produk di</p>
+    <div class="marquee">
+      <div class="marquee__track" aria-hidden="false">
+        <span>Nusantara</span><span>Kinarya</span><span>Halocycle</span><span>Bloomlab</span><span>Aria Studio</span><span>Tanam</span><span>Pulau</span>
+      </div>
+      <div class="marquee__track" aria-hidden="true">
+        <span>Nusantara</span><span>Kinarya</span><span>Halocycle</span><span>Bloomlab</span><span>Aria Studio</span><span>Tanam</span><span>Pulau</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="section" id="fitur" aria-labelledby="fitur-title">
+    <div class="shell">
+      <header class="section__head section__head--split">
+        <div>
+          <p class="eyebrow">Fitur</p>
+          <h2 id="fitur-title" style="margin-top:16px">Satu sistem material, banyak konteks.</h2>
+        </div>
+        <p class="section__lead">
+          Permukaan yang sama bisa berubah opasitas, tint, dan elevasinya mengikuti konten di belakangnya.
+          Anda mengatur niatnya — Verdant menjaga konsistensinya.
+        </p>
+      </header>
+
+      <div class="bento">
+        <article class="card card--feature reveal">
+          <div class="card--feature__top">
+            <span class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z"/><path d="m4 12 8 4.5 8-4.5"/><path d="m4 16.5 8 4.5 8-4.5"/></svg>
+            </span>
+            <h3>Material Engine</h3>
+            <p>Tingkatan material yang eksplisit: base, secondary, floating, elevated, dan selected. Setiap tingkat punya opasitas, blur, dan elevasi yang terukur — bukan efek acak per komponen.</p>
+          </div>
+          <div class="card--feature__visual" aria-hidden="true">
+            <span class="visual__tag">Material stack</span>
+            <span class="layer layer--1"></span>
+            <span class="layer layer--2"></span>
+            <span class="layer layer--3"></span>
+            <span class="layer__glow"></span>
+            <span class="visual__meta">blur 8 · 16 · 24px</span>
+          </div>
+        </article>
+
+        <article class="card card--side reveal" data-delay="1">
+          <span class="card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h7v7H4z"/><path d="M13 7h7v3h-7z"/><path d="M13 12h7v5h-7z"/><path d="M4 16h7v4H4z"/></svg>
+          </span>
+          <h3>Token sinkron</h3>
+          <p>Satu sumber kebenaran untuk warna, radius, bayangan, dan focus ring. Ubah sekali, konsisten di seluruh produk.</p>
+          <p class="bento-mini"><b>128 token</b> tersinkron otomatis</p>
+        </article>
+
+        <article class="card card--side reveal" data-delay="2">
+          <span class="card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 0-9-9"/><path d="M12 12l4-4"/><path d="M3 21v-4h4"/></svg>
+          </span>
+          <h3>Performa terukur</h3>
+          <p>Animasi hanya pada properti murah: transform dan opacity. Budget blur dibatasi per layar.</p>
+          <p class="bento-mini"><b>60 fps</b> di perangkat menengah</p>
+        </article>
+
+        <article class="card card--third reveal" data-delay="1">
+          <span class="card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01"/><path d="M11 12h1v4h1"/></svg>
+          </span>
+          <h3>Aksesibilitas bawaan</h3>
+          <p>Kontras diuji terhadap material aktual, focus ring kontras tinggi, dan fallback saat blur tidak didukung.</p>
+        </article>
+
+        <article class="card card--third reveal" data-delay="2">
+          <span class="card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/></svg>
+          </span>
+          <h3>Adaptif konteks</h3>
+          <p>Saat konten di belakang sibuk, permukaan otomatis menaikkan opasitas agar teks tetap terbaca.</p>
+        </article>
+
+        <article class="card card--third reveal" data-delay="3">
+          <span class="card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13A4 4 0 0 1 19 7a4 4 0 0 1-3 3.87"/></svg>
+          </span>
+          <h3>Kolaborasi real-time</h3>
+          <p>Review material langsung di kanvas bersama, dengan riwayat versi dan komentar bertaut token.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SHOWCASE ================= -->
+  <section class="section section--hairline" id="produk" aria-labelledby="produk-title">
+    <div class="shell showcase__grid">
+      <div class="showcase__copy">
+        <p class="eyebrow">Produk</p>
+        <h2 id="produk-title">Cahaya, bukan sekadar transparansi.</h2>
+        <p>
+          Setiap permukaan Verdant punya lapisan dasar, tint, specular highlight, dan definisi tepi.
+          Hasilnya bukan blur di mana-mana, tapi material yang terasa punya ketebalan.
+        </p>
+        <ul class="checklist">
+          <li>
+            <span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span>
+            <span><b>Hierarki material berlapis</b> — konten utama selalu lebih tegas daripada dekorasi.</span>
+          </li>
+          <li>
+            <span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span>
+            <span><b>Fallback tanpa blur</b> — layout tetap utuh di perangkat atau browser lama.</span>
+          </li>
+          <li>
+            <span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span>
+            <span><b>State yang dapat diprediksi</b> — hover, fokus, ditekan, dan terpilih punya respons tetap.</span>
+          </li>
+          <li>
+            <span class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span>
+            <span><b>Hormati preferensi gerak</b> — parallax dan animasi non-esensial dimatikan otomatis.</span>
+          </li>
+        </ul>
+      </div>
+
+      <figure class="showcase__frame glass reveal" data-delay="1">
+        <div class="showcase__media" data-parallax="0.07">
+          <img src="assets/showcase-bg.webp" alt="Makro tetesan air di atas panel kaca zamrud dengan pantulan cahaya lembut" width="1216" height="832" loading="lazy" decoding="async">
+        </div>
+        <figcaption class="showcase__tag">
+          <span class="dot" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          </span>
+          <span>Material <b>Emerald&nbsp;/&nbsp;02</b> — kontras teks terjaga</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIALS ================= -->
+  <section class="section section--hairline" aria-labelledby="testi-title">
+    <div class="shell">
+      <header class="section__head">
+        <p class="eyebrow">Cerita tim</p>
+        <h2 id="testi-title" style="margin-top:16px">Dipakai tim yang tidak mau menebak-nebak.</h2>
+      </header>
+
+      <div class="quotes">
+        <figure class="quote reveal">
+          <blockquote>Sebelumnya kami punya 14 versi kartu yang berbeda. Sekarang satu token, satu perilaku — review desain turun dari dua hari jadi dua jam.</blockquote>
+          <figcaption>
+            <span class="avatar" aria-hidden="true">RA</span>
+            <span>
+              <b>Rani Adisurya</b>
+              <span>Head of Design, Kinarya</span>
+            </span>
+          </figcaption>
+        </figure>
+
+        <figure class="quote reveal" data-delay="1">
+          <blockquote>Yang bikin saya bertahan: performanya jujur. Tidak ada blur di 40 elemen sekaligus, dan skor Lighthouse tetap hijau di halaman berat.</blockquote>
+          <figcaption>
+            <span class="avatar" aria-hidden="true">BP</span>
+            <span>
+              <b>Bagas Prakoso</b>
+              <span>Frontend Lead, Halocycle</span>
+            </span>
+          </figcaption>
+        </figure>
+
+        <figure class="quote reveal" data-delay="2">
+          <blockquote>Tim aksesibilitas kami akhirnya tidak perlu audit ulang tiap rilis. Fallback dan focus ring sudah jadi bagian dari sistem, bukan tambalan.</blockquote>
+          <figcaption>
+            <span class="avatar" aria-hidden="true">NM</span>
+            <span>
+              <b>Nadia Maheswari</b>
+              <span>Product Manager, Bloomlab</span>
+            </span>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PRICING ================= -->
+  <section class="section section--hairline" id="harga" aria-labelledby="harga-title">
+    <div class="shell">
+      <div class="pricing__head">
+        <header class="section__head">
+          <p class="eyebrow">Harga</p>
+          <h2 id="harga-title" style="margin-top:16px">Mulai kecil, tetap konsisten.</h2>
+          <p class="section__lead" style="margin-top:12px">Semua paket termasuk Material Engine, token sinkron, dan akses ke pustaka komponen.</p>
+        </header>
+        <div class="billing" role="group" aria-label="Pilihan siklus penagihan">
+          <button type="button" data-billing="monthly" aria-pressed="true">Bulanan</button>
+          <button type="button" data-billing="yearly" aria-pressed="false">Tahunan <span class="save">−20%</span></button>
+        </div>
+      </div>
+
+      <div class="plans">
+        <article class="plan reveal">
+          <div>
+            <h3 class="plan__name">Jelajah</h3>
+            <p class="plan__desc">Untuk mencoba sistem material.</p>
+          </div>
+          <p class="plan__price">
+            <span class="amount" data-price="0">Gratis</span>
+          </p>
+          <ul class="plan__list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>1 proyek aktif</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>24 komponen inti</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>Token dasar &amp; ekspor CSS</li>
+            <li class="muted"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>Kolaborasi tim</li>
+          </ul>
+          <a class="btn btn--glass btn--block" href="#">Mulai gratis</a>
+          <p class="plan__note">Selamanya gratis</p>
+        </article>
+
+        <article class="plan plan--selected reveal" data-delay="1">
+          <span class="plan__badge">Paling populer</span>
+          <div>
+            <h3 class="plan__name">Studio</h3>
+            <p class="plan__desc">Untuk tim produk yang sedang tumbuh.</p>
+          </div>
+          <p class="plan__price">
+            <span class="currency">Rp</span>
+            <span class="amount" data-price="249" data-yearly="199">249</span>
+            <span class="unit">rb / bulan</span>
+          </p>
+          <ul class="plan__list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>Proyek tanpa batas</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>Material Engine penuh</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>Kolaborasi 10 anggota</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>Audit aksesibilitas otomatis</li>
+          </ul>
+          <a class="btn btn--primary btn--block" href="#">Coba 14 hari</a>
+          <p class="plan__note" data-note>Ditagih bulanan, tanpa kontrak</p>
+        </article>
+
+        <article class="plan reveal" data-delay="2">
+          <div>
+            <h3 class="plan__name">Skala</h3>
+            <p class="plan__desc">Untuk organisasi dengan banyak produk.</p>
+          </div>
+          <p class="plan__price">
+            <span class="currency">Rp</span>
+            <span class="amount" data-price="749" data-yearly="599">749</span>
+            <span class="unit">rb / bulan</span>
+          </p>
+          <ul class="plan__list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>Semua fitur Studio</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>Multi-brand token set</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>SSO &amp; kontrol akses</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>Dukungan prioritas 24/7</li>
+          </ul>
+          <a class="btn btn--glass btn--block" href="#">Hubungi kami</a>
+          <p class="plan__note" data-note>Ditagih bulanan, tanpa kontrak</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="section section--hairline" id="faq" aria-labelledby="faq-title">
+    <div class="shell faq__grid">
+      <div class="faq__aside">
+        <p class="eyebrow">FAQ</p>
+        <h2 id="faq-title">Pertanyaan yang sering muncul.</h2>
+        <p>Belum menemukan jawabannya? Tim kami biasanya membalas dalam satu hari kerja.</p>
+        <a class="btn btn--glass btn--sm" href="mailto:halo@verdant.id">Tanya tim Verdant</a>
+      </div>
+
+      <div class="faq__list">
+        <details class="faq__item" name="faq" open>
+          <summary>Apakah Liquid Glass di sini memakai API Apple?<span class="faq__sign" aria-hidden="true"></span></summary>
+          <div class="faq__body">
+            Tidak. Liquid Glass di Verdant adalah arahan visual dan perilaku untuk web: transluensi kontekstual, blur terbatas, tint, specular highlight, dan definisi tepi. Semuanya dibangun dengan CSS standar dan tidak memakai API platform proprietary.
+          </div>
+        </details>
+
+        <details class="faq__item" name="faq">
+          <summary>Bagaimana kalau browser tidak mendukung backdrop-filter?<span class="faq__sign" aria-hidden="true"></span></summary>
+          <div class="faq__body">
+            Setiap permukaan punya fallback solid dengan opasitas tinggi. Hierarki visual tetap terbaca karena ditopang layout, tipografi, dan kontras — bukan hanya efek blur.
+          </div>
+        </details>
+
+        <details class="faq__item" name="faq">
+          <summary>Apakah parallax mengganggu pengguna dengan sensitivitas gerak?<span class="faq__sign" aria-hidden="true"></span></summary>
+          <div class="faq__body">
+            Tidak. Parallax hanya aktif pada layar lebar dengan pointer presisi, dan otomatis dimatikan saat prefers-reduced-motion bernilai reduce. Semua konten tetap tampil tanpa gerakan.
+          </div>
+        </details>
+
+        <details class="faq__item" name="faq">
+          <summary>Bisakah saya membawa token yang sudah ada?<span class="faq__sign" aria-hidden="true"></span></summary>
+          <div class="faq__body">
+            Bisa. Impor dari CSS variables, JSON, atau Figma Variables. Verdant memetakan token lama ke skala material kami, lalu menandai konflik kontras sebelum dipublikasikan.
+          </div>
+        </details>
+
+        <details class="faq__item" name="faq">
+          <summary>Apakah ada batas jumlah komponen di paket gratis?<span class="faq__sign" aria-hidden="true"></span></summary>
+          <div class="faq__body">
+            Paket Jelajah menyertakan 24 komponen inti dan satu proyek aktif. Tanpa batas waktu, tanpa kartu kredit. Anda bisa meningkatkan paket kapan saja tanpa kehilangan riwayat versi.
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FINAL CTA ================= -->
+  <section class="section section--tight">
+    <div class="shell">
+      <div class="cta reveal">
+        <div class="cta__inner">
+          <div>
+            <p class="pill"><span class="pill__dot" aria-hidden="true"></span> 14 hari · semua fitur Studio</p>
+            <h2>Bangun antarmuka yang terasa hidup.</h2>
+            <p>Mulai dari satu komponen hari ini. Bawa seluruh sistem material Anda besok.</p>
+            <div class="cta__actions">
+              <a class="btn btn--primary" href="#harga">
+                Mulai gratis
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+              </a>
+              <a class="btn btn--glass" href="mailto:halo@verdant.id">Bicara dengan tim</a>
+            </div>
+          </div>
+          <div class="cta__side" aria-label="Ringkasan paket Studio">
+            <span>Paket <b>Studio</b></span>
+            <span>Setup <b>&lt; 5 menit</b></span>
+            <span>Kartu kredit <b>Tidak perlu</b></span>
+            <span>Dukungan <b>1 hari kerja</b></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="shell">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a class="brand" href="#hero" aria-label="Verdant, kembali ke atas">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 21c0-6 3-10 8-11-1 7-4 10-8 11Z"/>
+              <path d="M12 21C8 16 6 12 4 9c5 0 8 3 8 12Z"/>
+            </svg>
+          </span>
+          <span class="brand__name">Verdant</span>
+        </a>
+        <p>Sistem material untuk tim yang peduli pada detail, keterbacaan, dan kecepatan.</p>
+      </div>
+
+      <div class="footer__col">
+        <h3>Produk</h3>
+        <ul>
+          <li><a href="#fitur">Material Engine</a></li>
+          <li><a href="#produk">Token sinkron</a></li>
+          <li><a href="#harga">Harga</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h3>Sumber daya</h3>
+        <ul>
+          <li><a href="#">Dokumentasi</a></li>
+          <li><a href="#">Panduan aksesibilitas</a></li>
+          <li><a href="#">Pustaka komponen</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h3>Perusahaan</h3>
+        <ul>
+          <li><a href="#">Tentang</a></li>
+          <li><a href="#">Karier</a></li>
+          <li><a href="mailto:halo@verdant.id">Kontak</a></li>
+          <li><a href="#">Privasi</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <p>© 2026 Verdant. Dibuat dengan arahan material Liquid Glass.</p>
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <span class="badge-material"><i aria-hidden="true"></i> Dynamic Material UI</span>
+        <ul>
+          <li><a href="#">Ketentuan</a></li>
+          <li><a href="#">Privasi</a></li>
+          <li><a href="#">Cookie</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var hoverFine = window.matchMedia('(min-width: 901px) and (pointer: fine)');
+  var nav = document.querySelector('[data-nav]');
+  var toggle = document.querySelector('.nav__toggle');
+  var mobile = document.getElementById('mobile-menu');
+  var closeTimer;
+
+  /* ---------- 1. Navigation: scrolled state ---------- */
+  var ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(function () {
+      nav.classList.toggle('is-scrolled', window.scrollY > 24);
+      ticking = false;
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- 2. Navigation: mobile panel ---------- */
+  function setMenu(open) {
+    window.clearTimeout(closeTimer);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Tutup menu navigasi' : 'Buka menu navigasi');
+    nav.classList.toggle('is-open', open);
+
+    if (open) {
+      mobile.hidden = false;
+      window.requestAnimationFrame(function () {
+        mobile.classList.add('is-open');
+      });
+    } else {
+      mobile.classList.remove('is-open');
+      closeTimer = window.setTimeout(function () {
+        if (!nav.classList.contains('is-open')) mobile.hidden = true;
+      }, 200);
+    }
+  }
+
+  toggle.addEventListener('click', function () {
+    setMenu(toggle.getAttribute('aria-expanded') !== 'true');
+  });
+
+  mobile.addEventListener('click', function (event) {
+    if (event.target.closest('a')) setMenu(false);
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && nav.classList.contains('is-open')) {
+      setMenu(false);
+      toggle.focus();
+    }
+  });
+
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 900 && nav.classList.contains('is-open')) setMenu(false);
+  });
+
+  /* ---------- 3. Parallax (transform only, rAF, paused offscreen) ---------- */
+  var layers = [].slice.call(document.querySelectorAll('[data-parallax]'));
+  var parallaxFrame = null;
+
+  function renderParallax() {
+    parallaxFrame = null;
+    if (reduceMotion.matches || !hoverFine.matches) return;
+    var vh = window.innerHeight;
+
+    for (var i = 0; i < layers.length; i++) {
+      var el = layers[i];
+      var speed = parseFloat(el.getAttribute('data-parallax')) || 0;
+      var rect = el.getBoundingClientRect();
+
+      if (rect.bottom < -240 || rect.top > vh + 240) continue;
+
+      /* distance of the element centre from the viewport centre, normalised */
+      var progress = (rect.top + rect.height / 2 - vh / 2) / vh;
+      var shift = progress * speed * -160;
+
+      el.style.transform = 'translate3d(0,' + shift.toFixed(2) + 'px,0)';
+    }
+  }
+
+  function requestParallax() {
+    if (parallaxFrame === null) parallaxFrame = window.requestAnimationFrame(renderParallax);
+  }
+
+  if (layers.length) {
+    window.addEventListener('scroll', requestParallax, { passive: true });
+    window.addEventListener('resize', requestParallax, { passive: true });
+    requestParallax();
+  }
+
+  /* ---------- 4. Reveal on enter viewport ---------- */
+  var reveals = [].slice.call(document.querySelectorAll('.reveal'));
+  if ('IntersectionObserver' in window && !reduceMotion.matches) {
+    var revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-in');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.14, rootMargin: '0px 0px -40px' });
+
+    reveals.forEach(function (el) { revealObserver.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('is-in'); });
+  }
+
+  /* ---------- 5. Counters ---------- */
+  var counters = [].slice.call(document.querySelectorAll('[data-count]'));
+  var numberFormat = new Intl.NumberFormat('id-ID');
+
+  function runCounter(el) {
+    var target = parseFloat(el.getAttribute('data-count'));
+    var decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
+    var duration = reduceMotion.matches ? 0 : 1100;
+    var start = null;
+
+    function format(value) {
+      if (decimals > 0) {
+        return new Intl.NumberFormat('id-ID', {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        }).format(value);
+      }
+      return numberFormat.format(Math.round(value));
+    }
+
+    if (duration === 0) {
+      el.textContent = format(target);
+      return;
+    }
+
+    function step(timestamp) {
+      if (start === null) start = timestamp;
+      var progress = Math.min((timestamp - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = format(target * eased);
+      if (progress < 1) window.requestAnimationFrame(step);
+      else el.textContent = format(target);
+    }
+    window.requestAnimationFrame(step);
+  }
+
+  if ('IntersectionObserver' in window) {
+    var counterObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          runCounter(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.6 });
+    counters.forEach(function (el) { counterObserver.observe(el); });
+  }
+
+  /* ---------- 6. Billing switch ---------- */
+  var billingButtons = [].slice.call(document.querySelectorAll('[data-billing]'));
+  var prices = [].slice.call(document.querySelectorAll('[data-price]'));
+  var notes = [].slice.call(document.querySelectorAll('[data-note]'));
+
+  billingButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var yearly = button.getAttribute('data-billing') === 'yearly';
+
+      billingButtons.forEach(function (other) {
+        other.setAttribute('aria-pressed', String(other === button));
+      });
+
+      prices.forEach(function (price) {
+        var monthly = price.getAttribute('data-price');
+        if (monthly === '0') return;
+        price.textContent = yearly ? price.getAttribute('data-yearly') : monthly;
+      });
+
+      notes.forEach(function (note) {
+        note.textContent = yearly ? 'Ditagih tahunan · hemat 20%' : 'Ditagih bulanan, tanpa kontrak';
+      });
+    });
+  });
+
+  /* ---------- 7. Scroll spy for nav ---------- */
+  var sections = [].slice.call(document.querySelectorAll('main section[id]'));
+  var navLinks = [].slice.call(document.querySelectorAll('.nav__links a'));
+
+  if ('IntersectionObserver' in window && navLinks.length) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        navLinks.forEach(function (link) {
+          var active = link.getAttribute('href') === '#' + entry.target.id;
+          link.setAttribute('aria-current', active ? 'true' : 'false');
+        });
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+
+    sections.forEach(function (section) { spy.observe(section); });
+  }
+
+  /* ---------- 8. Keep parallax honest if preference changes ---------- */
+  function resetTransforms() {
+    layers.forEach(function (el) { el.style.transform = ''; });
+  }
+  if (typeof reduceMotion.addEventListener === 'function') {
+    reduceMotion.addEventListener('change', function () {
+      if (reduceMotion.matches) resetTransforms();
+      else requestParallax();
+    });
+  }
+})();
+</script>
+</body>
+</html>
